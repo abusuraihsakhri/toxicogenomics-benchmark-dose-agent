@@ -8,9 +8,10 @@ import json
 import time
 import hmac
 import hashlib
+import secrets
+import warnings
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
-from pydantic import BaseModel, Field
 
 PHI_PATTERNS = [
     re.compile(r"\b(?:MRN|mrn)[:#\s-]*\d{4,10}\b", re.IGNORECASE),
@@ -57,7 +58,18 @@ class PHIGuard:
 class AuditTrail:
     """Cryptographic Tamper-Evident HMAC-SHA256 Audit Trail."""
     def __init__(self, secret_key: Optional[str] = None):
-        self.secret_key = (secret_key or os.getenv("AUDIT_SECRET_KEY", "toxicogenomics-benchmark-dose-agent-master-audit-key-2026")).encode("utf-8")
+        resolved_key = secret_key or os.getenv("AUDIT_SECRET_KEY")
+        if resolved_key:
+            self.secret_key = resolved_key.encode("utf-8")
+        else:
+            # Generate a cryptographically secure random key if none provided
+            warnings.warn(
+                "AUDIT_SECRET_KEY not set. Generating a ephemeral random key. "
+                "Set AUDIT_SECRET_KEY environment variable for persistent audit integrity across restarts.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            self.secret_key = secrets.token_bytes(32)
         self.logs: List[Dict[str, Any]] = []
 
     def log(self, actor: str, actor_tier: str, event_type: str, details: Dict[str, Any]) -> Dict[str, Any]:

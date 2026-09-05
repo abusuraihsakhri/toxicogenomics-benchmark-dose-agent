@@ -1,6 +1,6 @@
 # Toxicogenomics Benchmark Dose Agent
 
-> **Domain:** Clinical Decision Support & Biomedical Computing  
+> **Domain:** Clinical Decision Support & Biomedical Computing
 > **Reference Guidelines & Standards:** `Standard Clinical Formulations & ISO/IEC Quality Frameworks`
 
 <div align="center">
@@ -27,6 +27,19 @@
 - **Deterministic Calculation Engine**: Strict compliance with standard reference formulations and thresholds.
 - **Risk & Urgency Classification**: Multi-tier categorization with automated clinical/operational action recommendations.
 - **Validation & Guardrails**: Rigorous input bounds checking and anomaly detection.
+
+---
+
+## 🚀 Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/abusuraihsakhri/toxicogenomics-benchmark-dose-agent.git
+cd toxicogenomics-benchmark-dose-agent
+
+# Install dependencies
+pip install pydantic fastapi uvicorn pytest
+```
 
 ---
 
@@ -73,6 +86,20 @@ python cli.py --task-id <value> --target <value> --primary <value> --secondary <
 * **Active Learning Bayesian Calibration:** Dynamic tracker updating worker reliability weights and monitoring Brier calibration drift.
 * **FastAPI & Prometheus Telemetry:** Exposes OpenAPI 3.1 REST endpoints and operational Prometheus metrics (`/metrics`).
 
+### Security Configuration
+
+Set the `AUDIT_SECRET_KEY` environment variable for persistent audit integrity across restarts:
+
+```bash
+# Linux/macOS
+export AUDIT_SECRET_KEY="your-secure-random-key-here"
+
+# Windows
+set AUDIT_SECRET_KEY=your-secure-random-key-here
+```
+
+If not set, a cryptographically secure random key will be generated at startup (ephemeral - audit trail will not persist across restarts).
+
 ---
 
 ## 🧪 Testing & Verification
@@ -97,3 +124,38 @@ python simulator.py --tasks 1000 --concurrency 8
 docker build -t toxicogenomics-benchmark-dose-agent .
 docker run -p 8000:8000 toxicogenomics-benchmark-dose-agent
 ```
+
+---
+
+## 📁 Project Structure
+
+```
+toxicogenomics-benchmark-dose-agent/
+├── agents/                  # Core agent modules
+│   ├── api.py              # FastAPI REST API server
+│   ├── base.py             # Security, PHI Guard, HMAC Audit Trail
+│   ├── models.py           # Pydantic data models
+│   ├── supervisor.py       # Supervisor orchestrator
+│   ├── workers.py          # Specialized domain workers
+│   ├── llm_factory.py      # LLM client factory
+│   └── ...
+├── tox_benchmark/          # ToxBenchmark BMD/BMDL engine
+│   ├── agents.py           # Distributed component coordination
+│   ├── engine.py           # Core algorithmic engine
+│   ├── models.py           # Data models
+│   ├── server.py           # FastAPI server
+│   └── cli.py              # CLI interface
+├── tests/                  # Test suite
+├── cli.py                  # Main CLI entry point
+├── simulator.py            # High-throughput simulation
+├── enrichment.py           # Enrichment feature modules
+├── pyproject.toml          # Project configuration
+├── Dockerfile              # Docker configuration
+└── docker-compose.yml      # Docker Compose configuration
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
