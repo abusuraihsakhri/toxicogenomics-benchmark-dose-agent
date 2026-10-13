@@ -30,4 +30,7 @@ Homepage = "https://github.com/abusuraihsakhri/toxicogenomics-benchmark-dose-age
 Repository = "https://github.com/abusuraihsakhri/toxicogenomics-benchmark-dose-agent"
 
 [tool.setuptools.packages.find]
-include = ["agents*", "tox_benchmark*"]
+include = ["agents*", "tox_benchmark*", "web"]
+
+[tool.setuptools.package-data]
+web = ["*.html"]
