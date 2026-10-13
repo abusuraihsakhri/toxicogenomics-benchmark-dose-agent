@@ -28,3 +28,6 @@ toxicogenomics-benchmark-dose-engine = "tox_benchmark.cli:main"
 [project.urls]
 Homepage = "https://github.com/abusuraihsakhri/toxicogenomics-benchmark-dose-agent"
 Repository = "https://github.com/abusuraihsakhri/toxicogenomics-benchmark-dose-agent"
+
+[tool.setuptools.packages.find]
+include = ["agents*", "tox_benchmark*"]
