@@ -4,7 +4,7 @@ FastAPI REST API Server for Toxicogenomics Benchmark Dose Agent.
 from typing import Dict, Any, List
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
-from pathlib import Path
+from importlib.resources import files
 from pydantic import BaseModel
 from .base import AuditLogger, PHIGuard
 from .models import SystemTaskPayload, ConsensusDossier
@@ -21,7 +21,7 @@ app = FastAPI(
 
 @app.get("/", include_in_schema=False)
 def index():
-    return FileResponse(Path(__file__).resolve().parent.parent / "web" / "index.html")
+    return FileResponse(str(files("web").joinpath("index.html")))
 
 
 class ChatRequest(BaseModel):
