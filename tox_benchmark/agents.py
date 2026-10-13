@@ -93,7 +93,7 @@ class ToxBenchmarkCoordinator:
             "critical_count": crit_count,
             "warning_count": warn_count,
             "alerts": [a.to_dict() for a in all_alerts],
-            "standard_specification": "EPA / EFSA Benchmark Dose (BMD) Technical Guidance",
+            "standard_specification": "Demonstration-only threshold rules",
             "consensus_summary": f"Consensus evaluation completed across 3 sub-agents with status [{status.value}].",
         }
 
@@ -105,6 +105,6 @@ class ToxBenchmarkCoordinator:
         if "status" in q or "ledger" in q:
             return f"ToxBenchmark: Benchmark Dose (BMD/BMDL) & Transcriptomic Hazard Agent currently managing {len(self.execution_ledger)} execution tasks in air-gapped memory."
         elif "standard" in q or "spec" in q:
-            return "Active runtime operating strictly according to EPA / EFSA Benchmark Dose (BMD) Technical Guidance specifications."
+            return "This is a fixed-threshold demonstration; it does not implement EPA/EFSA benchmark-dose specifications."
         else:
             return f"ToxBenchmark: Benchmark Dose (BMD/BMDL) & Transcriptomic Hazard Agent executive coordinator online. Zero-telemetry on-premises surveillance active."
