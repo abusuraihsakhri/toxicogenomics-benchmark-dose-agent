@@ -12,6 +12,19 @@ from agents.base import AuditLogger
 supervisor = SystemSupervisor(model_provider="mock")
 
 
+def parse_csv_bool(value):
+    """Interpret explicit CSV boolean values, never Python string truthiness."""
+    if isinstance(value, bool):
+        return value
+    normalized = str(value or "").strip().lower()
+    if normalized in ("true", "1", "yes", "y"):
+        return True
+    if normalized in ("false", "0", "no", "n", ""):
+        return False
+    raise ValueError(f"Invalid boolean value: {value!r}")
+
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="toxicogenomics-benchmark-dose-agent", description="Toxicogenomics Benchmark Dose Agent")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -80,41 +93,52 @@ def main(argv=None):
         return 0
 
     if args.command == "batch":
+        from pathlib import Path
+        if Path(args.input).resolve() == Path(args.output).resolve():
+            print("Error: Input and output CSV files must differ.", file=sys.stderr)
+            return 2
         try:
-            with open(args.input, mode="r", encoding="utf-8-sig") as f:
+            with open(args.input, mode="r", encoding="utf-8-sig", newline="") as f:
                 reader = csv.DictReader(f)
                 fieldnames = list(reader.fieldnames or [])
+                required = {"task_id", "target_identifier", "primary_metric"}
+                missing = required.difference(fieldnames)
+                if missing:
+                    raise ValueError(f"Missing required CSV columns: {', '.join(sorted(missing))}")
                 rows = list(reader)
-        except FileNotFoundError:
-            print(f"Error: Input file '{args.input}' not found.", file=sys.stderr)
-            return 1
-        except PermissionError:
-            print(f"Error: Permission denied reading '{args.input}'.", file=sys.stderr)
-            return 1
-
-        out_fields = fieldnames + ["overall_urgency", "integrity_status", "total_alerts", "audit_hash"]
-        out_rows = []
-        for r in rows:
-            payload = SystemTaskPayload(
-                task_id=r.get("task_id", "TASK-01"),
-                target_identifier=r.get("target_identifier", "TARGET-01"),
-                primary_metric=float(r.get("primary_metric", 15.0)),
-                secondary_metric=float(r.get("secondary_metric", 5.0)),
-                status_descriptor=r.get("status_descriptor", "NOMINAL"),
-                is_critical_flag=bool(r.get("is_critical_flag", False)),
-            )
-            dossier = supervisor.process_task(payload)
-            row_dict = dict(r)
-            row_dict["overall_urgency"] = dossier.overall_urgency.value
-            row_dict["integrity_status"] = dossier.integrity_status.value
-            row_dict["total_alerts"] = dossier.total_alerts
-            row_dict["audit_hash"] = dossier.audit_hash
-            out_rows.append(row_dict)
-
-        with open(args.output, mode="w", encoding="utf-8", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=out_fields)
-            writer.writeheader()
-            writer.writerows(out_rows)
+            out_fields = list(dict.fromkeys(
+                fieldnames + ["overall_urgency", "integrity_status", "total_alerts", "audit_hash"]
+            ))
+            out_rows = []
+            for line_no, row in enumerate(rows, start=2):
+                try:
+                    if None in row:
+                        raise ValueError("Unexpected extra columns")
+                    payload = SystemTaskPayload(
+                        task_id=row.get("task_id") or "",
+                        target_identifier=row.get("target_identifier") or "",
+                        primary_metric=float(row.get("primary_metric") or "nan"),
+                        secondary_metric=float(row.get("secondary_metric") or 0.0),
+                        status_descriptor=row.get("status_descriptor") or "NOMINAL",
+                        is_critical_flag=parse_csv_bool(row.get("is_critical_flag")),
+                    )
+                    dossier = supervisor.process_task(payload)
+                except (ValueError, TypeError) as exc:
+                    raise ValueError(f"CSV row {line_no}: {exc}") from exc
+                out_rows.append({
+                    **row,
+                    "overall_urgency": dossier.overall_urgency.value,
+                    "integrity_status": dossier.integrity_status.value,
+                    "total_alerts": dossier.total_alerts,
+                    "audit_hash": dossier.audit_hash,
+                })
+            with open(args.output, mode="w", encoding="utf-8", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=out_fields)
+                writer.writeheader()
+                writer.writerows(out_rows)
+        except (OSError, UnicodeError, csv.Error, ValueError) as exc:
+            print(f"Batch processing error: {exc}", file=sys.stderr)
+            return 2
         print(f"Processed {len(out_rows)} records -> {args.output}")
         return 0
 
