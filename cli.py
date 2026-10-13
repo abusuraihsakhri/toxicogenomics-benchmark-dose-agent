@@ -136,7 +136,10 @@ def main(argv=None):
                 writer = csv.DictWriter(f, fieldnames=out_fields)
                 writer.writeheader()
                 writer.writerows(out_rows)
-        except (OSError, UnicodeError, csv.Error, ValueError) as exc:
+        except OSError as exc:
+            print(f"Batch processing error: {exc}", file=sys.stderr)
+            return 1
+        except (UnicodeError, csv.Error, ValueError) as exc:
             print(f"Batch processing error: {exc}", file=sys.stderr)
             return 2
         print(f"Processed {len(out_rows)} records -> {args.output}")
