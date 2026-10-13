@@ -9,7 +9,7 @@ from .models import FrontierPayload, AgentTelemetryAlert, ExecutionStatus
 
 
 class FrontierDomainEngine:
-    STANDARD = "EPA / EFSA Benchmark Dose (BMD) Technical Guidance"
+    STANDARD = "Demonstration-only rules (not EPA/EFSA model fitting)"
     PRIMARY_BOUND = 25.0
     SECONDARY_BOUND = 10.0
 
