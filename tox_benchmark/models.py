@@ -1,7 +1,7 @@
 """
 Data Models & Telemetry Definitions for ToxBenchmark: Benchmark Dose (BMD/BMDL) & Transcriptomic Hazard Agent.
 Domain: Biomedical Scientific Discovery & Multi-Omics
-Standard: EPA / EFSA Benchmark Dose (BMD) Technical Guidance
+Standard: fixed demonstration thresholds only; BMD/BMDL not estimated
 """
 import datetime
 import math
@@ -49,7 +49,7 @@ class AgentTelemetryAlert:
     summary: str
     technical_details: str
     actionable_remediation: str
-    standard_reference: str = "EPA / EFSA Benchmark Dose (BMD) Technical Guidance"
+    standard_reference: str = "Demonstration-only rules (not EPA/EFSA model fitting)"
     timestamp: str = field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
 
     def to_dict(self) -> Dict[str, Any]:
