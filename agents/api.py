@@ -3,6 +3,8 @@ FastAPI REST API Server for Toxicogenomics Benchmark Dose Agent.
 """
 from typing import Dict, Any, List
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
+from importlib.resources import files
 from pydantic import BaseModel
 from .base import AuditLogger, PHIGuard
 from .models import SystemTaskPayload, ConsensusDossier
@@ -12,9 +14,14 @@ supervisor = SystemSupervisor(model_provider="mock")
 
 app = FastAPI(
     title="Toxicogenomics Benchmark Dose Agent API",
-    description="Enterprise Distributed Component Platform (Clinical & Biomedical AI)",
+    description="Demonstration fixed-threshold auditing. Does not compute BMD or BMDL.",
     version="3.0.0-ENTERPRISE",
 )
+
+
+@app.get("/", include_in_schema=False)
+def index():
+    return FileResponse(str(files("web").joinpath("index.html")))
 
 
 class ChatRequest(BaseModel):
@@ -46,7 +53,7 @@ def api_chat(req: ChatRequest):
     try:
         ans = supervisor.query_supervisory_chat(req.query)
         return {"response": ans}
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 

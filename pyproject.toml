@@ -1,27 +1,36 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "toxicogenomics-benchmark-dose-engine"
-version = "2.0.0"
-description = "ToxBenchmark: Benchmark Dose (BMD/BMDL) & Transcriptomic Hazard Engine"
+version = "2.0.1"
+description = "Demonstration threshold-audit workflows for toxicogenomics research; not a BMD/BMDL estimator"
 readme = "README.md"
-authors = [{ name = "Dr. Abu Suraih Sakhri", email = "abusuraih@example.com" }]
+requires-python = ">=3.10"
 license = { text = "MIT" }
+authors = [{ name = "Dr. Abu Suraih Sakhri" }]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Topic :: Security/Cryptography",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
-requires-python = ">=3.9"
-dependencies = []
+dependencies = ["pydantic>=2,<3"]
+
+[project.optional-dependencies]
+api = ["fastapi>=0.110,<1", "uvicorn>=0.27,<1"]
+test = ["pytest>=8,<10", "httpx>=0.26,<1"]
 
 [project.scripts]
 toxicogenomics-benchmark-dose-engine = "tox_benchmark.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/abusuraihsakhri/toxicogenomics-benchmark-dose-engine"
-Repository = "https://github.com/abusuraihsakhri/toxicogenomics-benchmark-dose-engine.git"
+Homepage = "https://github.com/abusuraihsakhri/toxicogenomics-benchmark-dose-agent"
+Repository = "https://github.com/abusuraihsakhri/toxicogenomics-benchmark-dose-agent"
+
+[tool.setuptools.packages.find]
+include = ["agents*", "tox_benchmark*", "web"]
+
+[tool.setuptools.package-data]
+web = ["*.html"]

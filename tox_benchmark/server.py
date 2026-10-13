@@ -11,11 +11,11 @@ coordinator = ToxBenchmarkCoordinator()
 def create_app():
     try:
         from fastapi import FastAPI
-        from pydantic import BaseModel
+        from pydantic import BaseModel, Field
 
         app = FastAPI(
             title="ToxBenchmark: Benchmark Dose (BMD/BMDL) & Transcriptomic Hazard Agent",
-            description="Fits Hill, Power, and Exponential dose-response models to transcriptomic data, calculating BMD and BMDL (10% benchmark response).",
+            description="Demonstration fixed-threshold alert workflow; does not fit dose-response models or estimate BMD/BMDL.",
             version="2.0.0-FRONTIER",
         )
 
@@ -26,7 +26,7 @@ def create_app():
             secondary_metric: float = 14.2
             status_descriptor: str = "DISCORDANT_ANOMALY"
             is_critical_flag: bool = True
-            attributes: Dict[str, Any] = {}
+            attributes: Dict[str, Any] = Field(default_factory=dict)
 
         class ChatRequest(BaseModel):
             query: str
