@@ -15,7 +15,7 @@ def create_app():
 
         app = FastAPI(
             title="ToxBenchmark: Benchmark Dose (BMD/BMDL) & Transcriptomic Hazard Agent",
-            description="Fits Hill, Power, and Exponential dose-response models to transcriptomic data, calculating BMD and BMDL (10% benchmark response).",
+            description="Demonstration fixed-threshold alert workflow; does not fit dose-response models or estimate BMD/BMDL.",
             version="2.0.0-FRONTIER",
         )
 
